@@ -15,8 +15,9 @@
 
 #define BUFFERSIZE 512
 #define FILENAME "recieved.txt"
+#define RETURNNAME "return.txt"
 #define SERVER_IP "127.0.0.1"
-#define PORT 4243
+#define PORT 4244
 
 static int sv[2];
 
@@ -106,6 +107,11 @@ int main ()
 
 		while (1)
 		{
+			printf("Waiting for a message...\n\n");
+            
+			// get the message
+			bytes_received = recv(client_sockfd, message, BUFFERSIZE, 0);
+
 			fp = fopen(FILENAME, "w");
 			if (fp == NULL) 
 			{
@@ -116,11 +122,6 @@ int main ()
 			{
 				printf("Found file %s\n", FILENAME);
 			}
-
-			printf("Waiting for a messsage...\n\n");
-            
-			// get the message
-			bytes_received = recv(client_sockfd, message, BUFFERSIZE, 0);
             
 			if (bytes_received < 0)
 			{
@@ -134,7 +135,10 @@ int main ()
             
 			// break when client sends "exit"
 			if (strncmp(message, "exit", 4) == 0)
+			{
+    			write(sv[0], "exit", strlen("exit"));
 				break;
+			}
 
 			if(strncmp(message, "Encrypt", 7) == 0)
 			{
@@ -146,14 +150,17 @@ int main ()
 					n = read(client_sockfd,message,BUFFERSIZE);
 					if (n < 0) error("ERROR reading from socket");
 
-					printf("%s %d", message, n);
-
 					n = fwrite(message, sizeof(char), n, fp);
 					if (n < 0) error("ERROR writing in file");
 
 					if(n < BUFFERSIZE)
 						break;
 				}
+
+				fclose(fp);
+
+    			write(sv[0], "encrypt_file", strlen("encrypt_file"));
+    			read(sv[0], message, BUFFERSIZE);
 			}
 			else if(strncmp(message, "Decrypt", 7) == 0)
 			{
@@ -165,17 +172,21 @@ int main ()
 					n = read(client_sockfd,message,BUFFERSIZE);
 					if (n < 0) error("ERROR reading from socket");
 
+					n = fwrite(message, sizeof(char), n, fp);
+					if (n < 0) error("ERROR writing in file");
+
 					if(n < BUFFERSIZE)
 						break;
-
-					n = fwrite(message, 1, n, fp);
-					if (n < 0) error("ERROR writing in file");
 				}
+
+				fclose(fp);
+
+    			write(sv[0], "decrypt_file", strlen("decrypt_file"));
+    			read(sv[0], message, BUFFERSIZE);
 			}
 
 			printf("Recieved File\n");
-			fclose(fp);
-			fp = fopen(FILENAME, "r");
+			fp = fopen(RETURNNAME, "r");
 
 			//const char * ct = encrypt_string(message);
             
@@ -189,8 +200,6 @@ int main ()
 				int bytes_read = fread(message, sizeof(char), BUFFERSIZE, fp);
 				if (bytes_read == 0) // We're done reading from the file
 					break;
-
-				printf("%s", message);
 
 				if (bytes_read < 0) 
 				{
@@ -238,11 +247,18 @@ int main ()
 			bytesRead = read(sv[1], buffer, 127);
 			buffer[bytesRead] = '\0';
 			printf("child: received command %s\n", buffer);
-            
+         
+  
 			// get the command
-			char *chPtr = strchr(buffer, ' ');
+			char *chPtr /*= strchr(buffer, ' ')*/;/*
 			*chPtr = 0;
 			chPtr++;
+			*/
+
+			printf("Buffer : %s\n", buffer);
+
+			if (strcmp("exit", buffer) == 0)
+				exit(0);
             
 			if (strcmp("encrypt_string", buffer) == 0)
 			{
@@ -262,8 +278,27 @@ int main ()
 				write(sv[1], cipherText, strlen(cipherText));
 				printf("child: Wrote %s\n", cipherText);
 			}
+			else if(strcmp("encrypt_file", buffer) == 0)
+			{
+				printf("Child: Encryption Requested\n");
+
+				system("openssl enc -aes-128-cbc -salt -base64 -k MyPassword -in recieved.txt -out return.txt");
+				write(sv[1], "Success", strlen("Success"));
+
+			}
+			else if(strcmp("decrypt_file", buffer) == 0)
+			{
+				printf("Child: Encryption Requested\n");
+
+				system("openssl enc -d -aes-128-cbc -salt -base64 -k MyPassword -in recieved.txt -out return.txt");
+				write(sv[1], "Success", strlen("Success"));
+
+			}
 			else
+			{
 				printf("whoops\n");
+				write(sv[1], "Success", strlen("Success"));
+			}
 		}
 	}
 }

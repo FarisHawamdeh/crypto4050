@@ -13,7 +13,7 @@
 
 #define BUFFERSIZE 512
 #define SERVER_IP "127.0.0.1"
-#define PORT 4243
+#define PORT 4244
 
 int main ()
 {
@@ -107,7 +107,7 @@ int main ()
 				message[strlen(message) - 1] = '\0';
 			} while (strlen(message) <= 0);
 
-			fp = fopen(message, "r");
+			fp = fopen(message, "r+");
 
 			if (fp == NULL) 
 			{
@@ -177,8 +177,6 @@ int main ()
 			bzero(message,BUFFERSIZE);
 			n = read(sockfd,message,BUFFERSIZE);
 			if (n < 0) error("ERROR reading from socket");
-
-			printf("%s %d", message, n);
 
 			n = fwrite(message, 1, n, fp);
 			if (n < 0) error("ERROR writing in file");
