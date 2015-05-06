@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
-#include <malloc/malloc.h>
+#include <malloc.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <resolv.h>
