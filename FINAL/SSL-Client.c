@@ -119,7 +119,7 @@ int main(int count, char *strings[])
 			message[strlen(message) - 1] = '\0';
 		} while (strlen(message) <= 0);
 
-		if(strncmp(message, "Encrypt", 7) == 0)
+		if(strncmp(message, "Encrypt", 7) == 0)    //checks user input for "Encrypt" then sends to server
 		{
 			if (SSL_write(ssl, message, strlen(message)) < 0)
 			{
@@ -131,14 +131,14 @@ int main(int count, char *strings[])
 
 			do
 			{
-				printf("Enter FileName To Encrypt: ");
+				printf("Enter FileName To Encrypt: ");  //Asks user for name of File to be sent for encryption
 				fgets(message, BUFFERSIZE, stdin);
 
 				// remove newline
 				message[strlen(message) - 1] = '\0';
 			} while (strlen(message) <= 0);
 
-			fp = fopen(message, "r+");
+			fp = fopen(message, "r+");   //opens requested file
 
 			if (fp == NULL)
 			{
@@ -150,7 +150,7 @@ int main(int count, char *strings[])
 				printf("Found file %s\n", message);
 			}
 		}
-		else if(strncmp(message, "Decrypt", 7) == 0)
+		else if(strncmp(message, "Decrypt", 7) == 0)    //checks user input for "Decrypt" then sends to server
       {
 			if (SSL_write(ssl, message, strlen(message)) < 0)
 			{
@@ -162,14 +162,14 @@ int main(int count, char *strings[])
 
 			do
 			{
-				printf("Enter FileName To Decrypt: ");
+				printf("Enter FileName To Decrypt: ");   //Asks user for name of File to be sent for decryption
 				fgets(message, BUFFERSIZE, stdin);
 
 				// remove newline
 				message[strlen(message) - 1] = '\0';
 			} while (strlen(message) <= 0);
 
-			fp = fopen(message, "r+");
+			fp = fopen(message, "r+");   //opens requested file
 
 			if (fp == NULL)
 			{
@@ -183,7 +183,7 @@ int main(int count, char *strings[])
       }
 
 		// break when user enters "exit"
-		if (strncmp(message, "exit", 4) == 0)
+		if (strncmp(message, "exit", 4) == 0)    //checks user input for 'exit'
 		{
 			if (SSL_write(ssl, message, strlen(message)) < 0)
 			{
