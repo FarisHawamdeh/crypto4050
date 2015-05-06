@@ -7,4 +7,4 @@ SSL_client: SSL-Client.c
 	gcc -Wall -o ssl-client SSL-Client.c -L/usr/lib -lssl -lcrypto
 
 secure_server: secureServer.c
-	gcc secureServer.c -0 secureserver
+	gcc secureServer.c -o secureserver
