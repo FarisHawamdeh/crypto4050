@@ -43,18 +43,6 @@ int OpenListener(int port)
     return sd;
 }
 
-int isRoot()
-{
-    if (getuid() != 0)
-    {
-        return 0;
-    }
-    else
-    {
-        return 1;
-    }
-
-}
 SSL_CTX* InitServerCTX(void)
 {   const SSL_METHOD *method;
     SSL_CTX *ctx;
@@ -123,12 +111,12 @@ void Servlet(SSL* ssl) /* Serve the connection -- threadable */
         pid_t pid;
 
 
-	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1) {
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1) {     //Creates socket pair
 		perror("socketpair");
 		exit(1);
 	}
 
-	if ((pid = fork()) < 0)
+	if ((pid = fork()) < 0)  //Forks the process
 	{
 		perror("fork");
 		exit(1);
@@ -154,7 +142,6 @@ void Servlet(SSL* ssl) /* Serve the connection -- threadable */
 			if (fp == NULL)
 			{
 				printf("File not found!\n");
-				//return 0;
 			}
 			else
 			{
@@ -225,10 +212,6 @@ void Servlet(SSL* ssl) /* Serve the connection -- threadable */
 
 			printf("Recieved File\n");
 			fp = fopen(RETURNNAME, "r");
-
-			//const char * ct = encrypt_string(message);
-
-			//printf("Resulting ciphertext: %s\n", ct);
 
 			// send cipher text to client
 			while (1)
@@ -323,11 +306,6 @@ int main(int count, char *strings[])
     int server;
     char *portnum;
 
-    /*if(!isRoot())
-    {
-        printf("This program must be run as root/sudo user!!");
-        exit(0);
-    }*/
     if ( count != 2 )
     {
         printf("Usage: %s <portnum>\n", strings[0]);
