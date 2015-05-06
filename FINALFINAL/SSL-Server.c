@@ -20,7 +20,7 @@
 #define BUFFERSIZE 512
 #define FILENAME "recieved.txt"
 #define RETURNNAME "return.txt"
-static int sv[2];
+//static int sv[2];
 
 int OpenConnection(const char *hostname, int port)
 {   int sd;
@@ -131,9 +131,6 @@ void Servlet(SSL* ssl, int secureServer) /* Serve the connection -- threadable *
     int sd;
     if ( SSL_accept(ssl) == FAIL )     /* do SSL-protocol accept */
         ERR_print_errors_fp(stderr);
-    else
-    {
-        pid_t pid;
 
 
 	/*if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1) {
@@ -277,7 +274,6 @@ void Servlet(SSL* ssl, int secureServer) /* Serve the connection -- threadable *
 			printf("Sent ciphertext to client\n\n");
 		}
 
-	}
 
     sd = SSL_get_fd(ssl);       /* get socket connection */
     SSL_free(ssl);         /* release SSL state */
@@ -290,11 +286,6 @@ int main(int count, char *strings[])
     int server, secureServer;
     char *portnum, *secureHostName, *securePortNum;
 
-    /*if(!isRoot())
-    {
-        printf("This program must be run as root/sudo user!!");
-        exit(0);
-    }*/
     if ( count != 4 )
     {
         printf("Usage: %s <portnum> <secureHostName> <securePortNum>\n", strings[0]);
